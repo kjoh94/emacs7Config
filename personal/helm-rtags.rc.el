@@ -1,0 +1,73 @@
+(require 'helm-rtags)
+(eval-after-load "helm-rtags"
+  '(progn
+     ;; (defface helm-rtags-token-face
+     ;;   '((t :inherit font-lock-warning-face
+     ;;        :foreground "White"
+     ;;        :background "DarkBlue"))
+     ;;   :group 'rtags)
+     (defface helm-rtags-caller-face
+       '((t :inherit font-lock-doc-face :bold t))
+       "Face used to highlight line number in the *RTags Helm* buffer."
+       :group 'rtags)
+
+     (defun helm-rtags-transform (candidate)
+       "Transform CANDIDATE."
+       (let ((line (helm-rtags-get-candidate-line candidate)))
+         (if (string-match "\\`\\([^:]+\\):\\([0-9]+\\):\\([0-9]+\\):\\(.*\\)\\(function:.+\\)" line)
+           (let* ((file-name (match-string 1 line))
+                  (line-num (match-string 2 line))
+                  (column-num (match-string 3 line))
+                  (content (match-string 4 line))
+                  (caller (match-string 5 line))
+                  (token-begin (string-to-number column-num))
+                  (token-end (min (+ token-begin (length helm-rtags-token))
+                                  (length content)))
+                  (content-prefix (substring content 0 token-begin))
+                  (content-token (substring content token-begin token-end))
+                  (content-suffix (substring content token-end (length content)))
+                  ;; (remain-width (- (window-total-width) (length file-name) (length line-num) (length column-num) (length content)))
+                  (remain-width (- (window-total-width) 20)))
+             (format "%s:%s:%s: %s%s%s
+       <-- %s:%s"
+                     (propertize file-name 'face 'helm-rtags-file-face)
+                     (propertize line-num 'face 'helm-rtags-lineno-face)
+                     (propertize column-num 'face 'helm-rtags-lineno-face)
+                     (helm-rtags-string-trim-left content-prefix)
+                     (propertize content-token 'face 'helm-rtags-token-face)
+                     ;; (if (string= content-token helm-rtags-token)
+                     ;;     (propertize content-token 'face 'helm-rtags-token-face)
+                     ;;   content-token)
+                     (helm-rtags-string-trim-right content-suffix)
+                     (propertize "func" 'face 'helm-rtags-caller-face)
+                     (helm-rtags-string-trim-right (substring caller (length "function: ")
+                                                              (length caller)))))
+           (if (string-match "\\`\\([^:]+\\):\\([0-9]+\\):\\([0-9]+\\):\\(.*\\)" line)
+               (let* ((file-name (match-string 1 line))
+                      (line-num (match-string 2 line))
+                      (column-num (match-string 3 line))
+                      (content (match-string 4 line))
+                      (token-begin (string-to-number column-num))
+                      (token-end (min (+ token-begin (length helm-rtags-token))
+                                      (length content)))
+                      (content-prefix (substring content 0 token-begin))
+                      (content-token (substring content token-begin token-end))
+                      (content-suffix (substring content token-end (length content))))
+                 (format "%s:%s:%s: %s%s%s"
+                         (propertize file-name 'face 'helm-rtags-file-face)
+                         (propertize line-num 'face 'helm-rtags-lineno-face)
+                         (propertize column-num 'face 'helm-rtags-lineno-face)
+                         (helm-rtags-string-trim-left content-prefix)
+                         (propertize content-token 'face 'helm-rtags-token-face)
+                         (helm-rtags-string-trim-right content-suffix)
+                         ))))
+         ))
+
+     (setq helm-rtags-source '((name . "RTags Helm")
+                               (candidates . helm-rtags-candidates)
+                               (real-to-display . helm-rtags-transform)
+                               (action . (("Select" . helm-rtags-select)
+                                          ("Select other window" . helm-rtags-select-other-window)))
+                               (persistent-action . helm-rtags-select-persistent)))
+     )
+  )

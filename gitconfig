@@ -1,0 +1,22 @@
+[user]
+	email = kjoh94@gmail.com
+	name = kyongjoo.oh
+[core]
+	editor = vi
+[alias]	
+	co = checkout
+	br = branch
+	brr = branch --sort=-committerdate
+	ci = commit
+	st = status
+	sb = show-branch
+	cp = cherry-pick -X ignore-all-space
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset'
+	ll = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' -1
+	ls = log --pretty=format:'%C(yellow)%h %Cred%ad/%cd %Cblue%an%Cgreen%d %Creset%s' --date=short
+[color]
+	ui = auto
+[http]	
+	postBuffer = 1048576000
+	cookiefile = /home/kyongjoo.oh/.gitcookies
+	sslverify = false

@@ -1,0 +1,9 @@
+*.elc
+*.pyc
+*.old
+*.dis
+tramp
+savefile/
+auto-save-list/
+org/
+request/

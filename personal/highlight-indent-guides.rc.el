@@ -1,0 +1,1 @@
+(setq highlight-indent-guides-method 'character)
